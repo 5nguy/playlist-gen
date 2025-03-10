@@ -20,7 +20,7 @@ global prefix
 global useEXTINF
 useEXTINF = True
 exts = ["mp3","wav","flac"] #extensions to consider as valid
-prefix = ''
+prefix = '00_'
 ign = [] #folder names to ignore
 naughtylist = [] #songs that i should redownload
 
@@ -91,7 +91,7 @@ def generatem3u(currpath, includeSongs, returnInsteadOfWriting, includePlaylists
     listOfFiles.clear()
 
     splitpath = currpath.split("\\")
-    name = prefix + splitpath[-1] #get the parent folder name
+    name = splitpath[-1] #get the parent folder name
 
     for (dirpath, dirnames, filenames) in os.walk(currpath): #recursively find all files in the folder
         patharr = dirpath.split("\\")
@@ -118,17 +118,18 @@ def generatem3u(currpath, includeSongs, returnInsteadOfWriting, includePlaylists
     if str(name) in ign: #ingore if on the ignore list
         print("ignoring folder " + name)
     else:
+        playlist_name = prefix + name + ".m3u"
         if music.__len__() > 0: #write mp3 songs to file or return array
             if returnInsteadOfWriting == True:
                 return music
             else:
                 if useEXTINF == True and returnInsteadOfWriting == False and includePlaylists == False:
                     music.insert(0,'#EXTM3U')
-                f = codecs.open(currpath + "\\" + name+".m3u", "w", "utf-8")
+                f = codecs.open(currpath + "\\" + playlist_name, "w", "utf-8")
                 aaa = "\n".join(music)
                 f.write(aaa)
                 f.close()
-                print("generated {}.m3u".format(name))
+                print("generated {}".format(playlist_name))
                 music.clear()
                 listOfFiles.clear()
         else: #if no valid songs just skip
