@@ -16,9 +16,11 @@ from prompt_toolkit.shortcuts import prompt
 from prompt_toolkit.validation import Validator, ValidationError
 
 global exts
+global prefix
 global useEXTINF
 useEXTINF = True
-exts = ["mp3"] #extensions to consider as valid
+exts = ["mp3","wav","flac"] #extensions to consider as valid
+prefix = ''
 ign = [] #folder names to ignore
 naughtylist = [] #songs that i should redownload
 
@@ -89,7 +91,7 @@ def generatem3u(currpath, includeSongs, returnInsteadOfWriting, includePlaylists
     listOfFiles.clear()
 
     splitpath = currpath.split("\\")
-    name = splitpath[-1] #get the parent folder name
+    name = prefix + splitpath[-1] #get the parent folder name
 
     for (dirpath, dirnames, filenames) in os.walk(currpath): #recursively find all files in the folder
         patharr = dirpath.split("\\")
@@ -151,7 +153,8 @@ def cmdhelp():
     print("---------- help:")
     prn = [
         "---------- setup ----------",
-        "'ext' - set the extensions of music files. default: mp3",
+        "'ext' - set the extensions of music files. default: mp3,wav,flac",
+        "'prefix' - set the prefix of playlist. default: 00_",
         "'ign' - set the folders to ignore in generation. none by default",
         "'plainm3u' - use plain .m3u instead of extended .m3u, faster but may not work on some players.",
         "---------- actions ----------",
@@ -175,7 +178,21 @@ def cmdexts():
     print("----------")
     print("enter the music extensions you use. lowercase. \n if there are more, separate them by , \n example: mp3,flac,ogg \n example2: ogg")
     newexts = input(': ').split(",")
+    #remove space
+    if len(newexts) >0:
+        newexts = [ext.strip() for ext in newexts]
     return newexts
+
+#set prefix of playlist file
+def cmdprefix():
+    print("---------- prefix")
+    print("the current prefix for playlist is :")
+    print(prefix)
+    print("----------")
+    print("enter the new prefix in lowercase. \n example: 00_")
+    newprefix = input(': ').strip()
+    
+    return newprefix
 
 #set the names of ignored folders
 def cmdign():
@@ -422,6 +439,10 @@ while True: #main command loop
         exts = cmdexts()
         print("set extensions to: ")
         print(exts)
+    elif command == "prefix":
+        prefix = cmdprefix()
+        print("set prefix to: ")
+        print(prefix)
     elif command == "ign":
         ign = cmdign()
         f = codecs.open("gen-ignorelist.txt", "w", "utf-8")
